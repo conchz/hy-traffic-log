@@ -35,6 +35,7 @@ public interface Constants {
     String DELIMITER = ":";
     String QUESTION_MARK = "?";
     String UNKNOWN_VALUE = "未知";
+    String GARBLED_VALUE = "--";
 
     // Elasticsearch index prefix
     String ACCESS_PREFIX = "access-";
@@ -46,6 +47,8 @@ public interface Constants {
     String ES_TYPE_EVENT_SUFFIX = "_event"; //事件转化
     String ES_TYPE_XY_SUFFIX = "_xy";   // xy坐标
     String ES_TYPE_PROMOTION_URL_SUFFIX = "_promotion_url"; // 推广URL
+    String ES_TYPE_PAGE_CONVERSION_SUFFIX = "_pageConversion";
+    String ES_TYPE_AD_TRACK = "_ad_track";  // 广告跟踪
 
     String ID = "_id";      // elasticsearch文档id
     String INDEX = "index"; // elasticsearch索引名称
@@ -54,6 +57,7 @@ public interface Constants {
     // Elasticsearch field
     String METHOD = "method";
     String VERSION = "version";
+    String HOST = "Host";
     String REMOTE = "remote";       // IP
     String TRAFFIC_CATEGORY = "tc"; // 0->国内, 1->国外
     String REGION = "region";       // 地域信息(省份, 直辖市等)
@@ -84,6 +88,7 @@ public interface Constants {
     String DESTINATION_URL = "des_url";     // 关键词推广URL
     String NEW_VISIT = "n";         // 是否一次新的访问
     String XY = "xy";               // xy坐标信息
+    String AD_TRACK = "atk";        // 广告跟踪流量标识
     String APP_IDENTIFIER = "app";  // (-1:非移动端标识, 0:未知, 1:移动浏览器, 2:App内置浏览器)
     /**
      * app的值:
@@ -112,6 +117,15 @@ public interface Constants {
     String ET_LABEL = "et_label";      // 事件的额外信息
     String ET_VALUE = "et_value";      // 事件的额外数值信息
 
+    String PAGE_CONVERSION_NAME = "p_name";//页面转化目标名称
+    String PAGE_CONVERSION_RECORD = "p_record";//页面转化记录方式
+    String PAGE_CONVERSION_ORDERID = "p_orderid";//订单号
+    String PAGE_CONVERSION_TYPE = "p_type";//页面转化类型
+    String PAGE_CONVERSION_TYPETEXT = "p_typetext";
+    String PAGE_CONVERSION_INCOME = "p_income";//页面转化预期收益
+    String PAGE_CONVERSION_CONVERSIONRATE = "p_conversionrate";//预期转化率
+
+
     String KEYWORD_INFO_REQUEST_URL = "http://api.hy.best-ad.cn/sem/info/keyword?kwid=%s&dm=%s";
 
     String SEM_ACCOUNT_ID = "accountId";
@@ -130,6 +144,13 @@ public interface Constants {
     String ES_ADGROUP_NAME = "agna";    // 推广单元名称
     String ES_KEYWORD_ID = "kwid";      // 推广关键词id
     String ES_KEYWORD_NAME = "kwna";    // 推广关键词名称
+
+    // Elasticsearch 指定广告跟踪字段信息
+    String AD_SOURCE = RF;              // 来源
+    String AD_MEDIA = "media";          // 媒介
+    String AD_CAMPAIGN = "cpna";        // 计划
+    String AD_KEYWORD = "kwna";         // 关键词
+    String AD_CREATIVE = "crt";         // 创意
 
 
     String VAL_RF_TYPE_DIRECT = "1";    // 直接访问标识

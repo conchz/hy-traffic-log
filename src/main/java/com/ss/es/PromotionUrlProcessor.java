@@ -22,11 +22,11 @@ class PromotionUrlProcessor implements Constants {
 
         String location = source.get(CURR_ADDRESS).toString();
         String ut = source.remove(UT).toString();
-        Map<String, Object> utMap = new HashMap<>();
+        Map<String, Object> promotionUrlMap = new HashMap<>();
 
         // 提取推广URL统计信息
         for (Map.Entry<String, Object> entry : ((Map<String, Object>) JSON.parse(ut)).entrySet()) {
-            utMap.put(entry.getKey(), entry.getValue());
+            promotionUrlMap.put(entry.getKey(), entry.getValue());
         }
 
         // 提取关键词信息
@@ -34,13 +34,14 @@ class PromotionUrlProcessor implements Constants {
         if (!keywordInfoMap.isEmpty())
             source.putAll(keywordInfoMap);
 
-        utMap.put(INDEX, source.get(INDEX).toString());
-        utMap.put(TYPE, source.get(TYPE).toString());
-        utMap.put(TT, source.get(TT).toString());
-        utMap.put(VID, source.get(VID).toString());
-        utMap.put(CURR_ADDRESS, location);
+        promotionUrlMap.put(INDEX, source.get(INDEX).toString());
+        promotionUrlMap.put(TYPE, source.get(TYPE).toString());
+        promotionUrlMap.put(HOST, source.get(HOST).toString()); // 存储的是网站的trackId
+        promotionUrlMap.put(TT, source.get(TT).toString());
+        promotionUrlMap.put(VID, source.get(VID).toString());
+        promotionUrlMap.put(CURR_ADDRESS, location);
 
         source.clear();
-        return utMap;
+        return promotionUrlMap;
     }
 }

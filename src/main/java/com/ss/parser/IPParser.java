@@ -30,6 +30,7 @@ public class IPParser {
     private static final String IP_REGION_SUFFIX1 = "自治区";
     private static final String IP_REGION_SUFFIX2 = "内蒙古自治区";
     private static final String IP_REGION_SUFFIX3 = "特别行政区";
+    private static final String COUNTY_LEVEL_CITY = "省直辖县级行政区划"; // 县级市
     private static final String ABROAD = "国外";
 
 

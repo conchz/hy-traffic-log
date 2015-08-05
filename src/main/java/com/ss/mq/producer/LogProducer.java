@@ -39,10 +39,10 @@ public class LogProducer {
         KeyedMessage<String, String> data = new KeyedMessage<>(topic, RANDOM.nextInt(RANDOM_RANGE) + EMPTY_STRING, msg);
         producer.send(data);
 
-        // TEST CODE
-        if (msg.contains(TEST_TRACK_ID)) {
-            MonitorService.getService().mq_send();
-        }
+//        // TEST CODE
+//        if (msg.contains(TEST_TRACK_ID)) {
+//            MonitorService.getService().mq_send();
+//        }
 
     }
 
