@@ -10,9 +10,11 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.transport.TransportClient;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -108,12 +110,13 @@ public class PageConversionProcessor implements Constants {
         Jedis redis = JRedisPools.getConnection();//获取redis连接
         String spacer = "ss_pv_=";//初始化参数pv记录间隔符
         if (source.size() == 0) {
+            closeRedis(redis);
             return null;
         }
         String loc_url = source.get("loc").toString();
         //去掉http://和网址末端的/
         loc_url = loc_url.split(DOUBLE_SLASH)[1];
-        if (loc_url.substring(loc_url.length() - 1, loc_url.length()).toString().equals("/")) {
+        if (loc_url.substring(loc_url.length() - 1, loc_url.length()).equals("/")) {
             loc_url = loc_url.substring(0, loc_url.length() - 1);
         }
 
@@ -123,7 +126,8 @@ public class PageConversionProcessor implements Constants {
             redis.expire(source.getOrDefault(T, EMPTY_STRING).toString() + ":" + source.get("tt"), 60 * 60);
         }
         String configureData = redis.get("pc:" + source.getOrDefault(T, EMPTY_STRING).toString());//从redis读取页面转化配置信息
-        if (null == configureData || "" == configureData) {
+        if (configureData == null || Objects.equals("", configureData)) {
+            closeRedis(redis);
             return null;
         }
 
@@ -132,7 +136,7 @@ public class PageConversionProcessor implements Constants {
         JSONArray paths_jsonArray = JSON.parseArray(jsonObject.getString("paths"));
         boolean isTarget_url = false;
         //判断是否是转化目标页面
-        for (int i = 0; i < target_urls.size(); i++) {
+        for (int i = 0, l = target_urls.size(); i < l; i++) {
             Map target_url = (Map) target_urls.get(i);
             if (loc_url.equals(target_url.get("url"))) {
                 isTarget_url = true;
@@ -141,7 +145,8 @@ public class PageConversionProcessor implements Constants {
         }
         if (isTarget_url) {
             String pvSaves = redis.get(source.getOrDefault(T, EMPTY_STRING).toString() + ":" + source.get("tt"));
-            if (pvSaves == "" || pvSaves == null) {
+            if (pvSaves == null || Objects.equals("", pvSaves)) {
+                closeRedis(redis);
                 return null;
             }
             pvSaves = pvSaves.substring(0, pvSaves.length() - spacer.length());
@@ -181,11 +186,14 @@ public class PageConversionProcessor implements Constants {
                     }
                 }
                 if (isConversion) {
+                    closeRedis(redis);
                     return handle(source, loc_url, jsonObject);
                 }
             }
+            closeRedis(redis);
             return null;
         } else {
+            closeRedis(redis);
             return null;
         }
     }
@@ -220,6 +228,15 @@ public class PageConversionProcessor implements Constants {
 
         source.clear();
         return sourceMap;
+    }
+
+    private void closeRedis(Jedis jedis) {
+        try {
+            if (jedis != null)
+                jedis.close();
+        } catch (JedisException ignored) {
+
+        }
     }
 
 }
