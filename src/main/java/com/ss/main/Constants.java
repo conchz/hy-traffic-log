@@ -126,7 +126,7 @@ public interface Constants {
     String PAGE_CONVERSION_CONVERSIONRATE = "p_conversionrate";//预期转化率
 
 
-    String KEYWORD_INFO_REQUEST_URL = "http://api.hy.best-ad.cn/sem/info/keyword?kwid=%s&dm=%s";
+    String KEYWORD_INFO_REQUEST_URL = "http://api.hy.best-ad.cn/sem/info/keyword?dm=%s&kwid=%s";
 
     String SEM_ACCOUNT_ID = "accountId";
     String SEM_CAMPAIGN_ID = "campaignId";

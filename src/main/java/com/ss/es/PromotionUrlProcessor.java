@@ -40,6 +40,9 @@ class PromotionUrlProcessor implements Constants {
         promotionUrlMap.put(TT, source.get(TT).toString());
         promotionUrlMap.put(VID, source.get(VID).toString());
         promotionUrlMap.put(CURR_ADDRESS, location);
+        promotionUrlMap.put(REGION, source.get(REGION).toString());
+        promotionUrlMap.put(CITY, source.get(CITY).toString());
+        promotionUrlMap.put(ISP, source.get(ISP).toString());
 
         source.clear();
         return promotionUrlMap;

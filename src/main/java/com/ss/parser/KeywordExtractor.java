@@ -1,6 +1,7 @@
 package com.ss.parser;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.ss.main.Constants;
 import io.netty.handler.codec.http.QueryStringDecoder;
@@ -62,8 +63,8 @@ public class KeywordExtractor implements Constants {
             conn.disconnect();
 
             return infoMap;
-        } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
+        } catch (IOException | NullPointerException | JSONException ignored) {
+
         }
 
         return Collections.emptyMap();

@@ -205,7 +205,7 @@ public class PageConversionProcessor implements Constants {
         Map<String, Object> sourceMap = new HashMap<>();
 
         sourceMap.put(INDEX, source.get(INDEX).toString());//index索引
-//                    sourceMap.put(TYPE, source.get(TYPE).toString());//索引type
+        sourceMap.put(TYPE, ES_TYPE_PAGE_CONVERSION_SUFFIX);//索引type
         sourceMap.put(TT, source.get(TT).toString()); //访问次数标识符
         sourceMap.put(VID, source.get(VID).toString());//访客唯一标识符
         sourceMap.put(CURR_ADDRESS, loc_url);//loc当前访问的页面
