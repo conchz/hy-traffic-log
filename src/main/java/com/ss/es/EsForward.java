@@ -230,6 +230,15 @@ public class EsForward implements Constants {
 
                     // 检测是否是一次的新的访问(1->新的访问, 0->同一次访问)
                     int identifier = Integer.valueOf(mapSource.getOrDefault(NEW_VISIT, 0).toString());
+
+                    String locTemp = mapSource.get(CURR_ADDRESS).toString();
+                    int lastIndex = locTemp.length() - 1;
+                    if (Objects.equals('/', locTemp.charAt(lastIndex))) {
+                        locTemp = locTemp.substring(0, lastIndex);
+                        mapSource.put(CURR_ADDRESS, locTemp);
+                        locTemp = null;
+                    }
+
                     if (identifier == 1) {
                         mapSource.put(ENTRANCE, 1);
                         mapSource.remove(NEW_VISIT);
@@ -245,9 +254,6 @@ public class EsForward implements Constants {
                             hasPromotion = true;
                         }
 
-                        URL url = new URL(_location);
-                        _location = url.getProtocol() + DOUBLE_SLASH + url.getHost().split("/")[0];
-                        mapSource.put(CURR_ADDRESS, _location);
                         mapSource.put(DESTINATION_URL, hasPromotion ? _location : PLACEHOLDER);
                     } else {
                         mapSource.put(ENTRANCE, 0);
