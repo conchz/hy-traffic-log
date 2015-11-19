@@ -1,12 +1,12 @@
 package com.ss.es;
 
 import com.ss.main.Constants;
-import com.ss.monitor.MonitorService;
 import com.ss.parser.GarbledCodeParser;
 import com.ss.parser.KeywordExtractor;
 import com.ss.parser.SearchEngineParser;
 import com.ss.redis.JRedisPools;
 import com.ss.utils.UrlUtils;
+
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -14,6 +14,7 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.collect.Lists;
+
 import redis.clients.jedis.Jedis;
 
 import java.io.UnsupportedEncodingException;
@@ -43,14 +44,15 @@ public class EsForward implements Constants {
     private final ExecutorService preHandlerExecutor = Executors.newFixedThreadPool(HANDLER_WORKERS, new DataPreHandleThreadFactory());
 
     private final ExecutorService requestHandlerExecutor = Executors.newFixedThreadPool(HANDLER_WORKERS, new EsRequestThreadFactory());
-
-
+    
+	private final GaProcessor gaProcessor;
+    
     private final PageConversionProcessor pageConversionProcessor;
-
-
+    
+    
     public EsForward(TransportClient client) {
         this.pageConversionProcessor = new PageConversionProcessor(client);
-
+        this.gaProcessor = new GaProcessor();
         BlockingQueue<IndexRequest> requestQueue = new LinkedBlockingQueue<>();
         preHandle(client, requestQueue);
         handleRequest(client, requestQueue);
@@ -184,7 +186,8 @@ public class EsForward implements Constants {
 
                     //页面转化
                     pageConversionProcessor.add(mapSource, esType);
-
+                    
+                   
 //                    // TEST CODE
 //                    if (TEST_TRACK_ID.equals(trackId)) {
 //                        MonitorService.getService().data_ready();
@@ -195,6 +198,7 @@ public class EsForward implements Constants {
                     String xyCoordinateInfo = mapSource.getOrDefault(XY, EMPTY_STRING).toString();
                     String promotionUrlInfo = mapSource.getOrDefault(UT, EMPTY_STRING).toString();
                     String adTrackInfo = mapSource.getOrDefault(AD_TRACK, EMPTY_STRING).toString();
+                    Map<String, Object> adTrackMap = new HashMap<>();
                     if (!eventInfo.isEmpty()) {
                         mapSource.put(TYPE, esType + ES_TYPE_EVENT_SUFFIX);
                         addRequest(client, requestQueue, EventProcessor.handle(mapSource));
@@ -211,7 +215,6 @@ public class EsForward implements Constants {
                         addRequest(client, requestQueue, PromotionUrlProcessor.handle(mapSource));
                         continue;
                     } else if (!adTrackInfo.isEmpty()) {
-                        Map<String, Object> adTrackMap = new HashMap<>();
                         adTrackMap.put(INDEX, mapSource.get(INDEX).toString());
                         adTrackMap.put(TYPE, esType + ES_TYPE_AD_TRACK);
                         adTrackMap.put(AD_SOURCE, mapSource.get(AD_SOURCE).toString());
@@ -221,13 +224,14 @@ public class EsForward implements Constants {
                         adTrackMap.put(AD_CREATIVE, mapSource.get(AD_CREATIVE).toString());
                         adTrackMap.put(REMOTE, mapSource.get(REMOTE).toString());
                         adTrackMap.put(UNIX_TIME, Long.parseLong(mapSource.get(UNIX_TIME).toString()));
-                        mapSource.clear();
 
-                        addRequest(client, requestQueue, adTrackMap);
-                        continue;
                     }
                     mapSource.put(TYPE, esType);
-
+                   /**
+                    * Cache  - 保存访问信息
+                    */
+                    gaProcessor.add(mapSource);
+                    
                     // 检测是否是一次的新的访问(1->新的访问, 0->同一次访问)
                     int identifier = Integer.valueOf(mapSource.getOrDefault(NEW_VISIT, 0).toString());
 
@@ -321,8 +325,16 @@ public class EsForward implements Constants {
                     Consumer<String> pathConsumer = (String c) -> pathMap.put(HTTP_PATH + (integer.getAndIncrement()), c);
                     Arrays.asList(location.split("/")).stream().filter((p) -> !p.isEmpty() || !p.startsWith(HTTP_PREFIX)).forEach(pathConsumer);
                     mapSource.put(PATHS, pathMap);
+                    
+                    if(!adTrackInfo.isEmpty()){
+                    	 fillingDate(mapSource,adTrackMap);
+                    	 addRequest(client, requestQueue, adTrackMap);
+                    }
 
+                  
                     addRequest(client, requestQueue, mapSource);
+
+                   
                 } catch (NullPointerException | UnsupportedEncodingException | MalformedURLException e) {
                     e.printStackTrace();
 //                    MonitorService.getService().data_error();
@@ -334,6 +346,30 @@ public class EsForward implements Constants {
 
             }
         }
+
+		private void fillingDate(Map<String, Object> mapSource, Map<String, Object> adTrackMap) {
+            adTrackMap.put(TT, mapSource.get(TT).toString());
+            adTrackMap.put(CURR_ADDRESS, mapSource.get(CURR_ADDRESS).toString());
+            adTrackMap.put(UCV, mapSource.get(UCV).toString());
+            adTrackMap.put(CITY, mapSource.get(CITY).toString());
+            adTrackMap.put(ISP, mapSource.get(ISP).toString());
+            adTrackMap.put(IP_DUPLICATE, mapSource.get(IP_DUPLICATE).toString());
+            adTrackMap.put(VID, mapSource.get(VID).toString());
+            adTrackMap.put(SE, mapSource.get(SE).toString());
+            adTrackMap.put(AD_TRACK, mapSource.get(AD_TRACK).toString());
+            adTrackMap.put(CLIENT_TIME, mapSource.get(CLIENT_TIME).toString());
+            adTrackMap.put(ENTRANCE, mapSource.get(ENTRANCE).toString());
+            adTrackMap.put(RF_TYPE, mapSource.get(RF_TYPE).toString());
+            adTrackMap.put(HOST, mapSource.get(HOST).toString());
+            adTrackMap.put(KW, mapSource.get(KW).toString());
+            adTrackMap.put(VERSION, mapSource.get(VERSION).toString());
+            adTrackMap.put(METHOD, mapSource.get(METHOD).toString());
+            adTrackMap.put(VISITOR_IDENTIFIER, mapSource.get(VISITOR_IDENTIFIER).toString());
+            adTrackMap.put(RF, mapSource.get(RF).toString());
+            adTrackMap.put(REGION, mapSource.get(REGION).toString());
+            adTrackMap.put(DOMAIN, mapSource.get(DOMAIN).toString());
+            adTrackMap.put(ENTRANCE, mapSource.get(ENTRANCE).toString());
+		}
 
     }
 

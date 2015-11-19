@@ -1,0 +1,3 @@
+IP: server1
+PORT: 27017
+DB_NAME: cache

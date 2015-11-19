@@ -53,6 +53,7 @@ public interface Constants {
     String ID = "_id";      // elasticsearch文档id
     String INDEX = "index"; // elasticsearch索引名称
     String TYPE = "_type";  // elasticsearch文档类型
+    
 
     // Elasticsearch field
     String METHOD = "method";
@@ -67,6 +68,21 @@ public interface Constants {
     String UNIX_TIME = "utime";     // 当前系统时间
     String CLIENT_TIME = "ctime";   // 访问当前页面的时间
     String VISITOR_IDENTIFIER = "ct";   // 新老访客标识(0->新访客, 1->老访客)
+    
+    //Mongodb field
+    String MONGODB_IS_NEW = "isNew";  // 是否为新访客(0->新访客, 1->老访客)
+    String MONGODB_TYPE = "type"; // 业务：对应不同的客户。字段：对应elasticsearch文档类型
+    String MONGODB_USER_ID = "userId"; // 对应VID。
+    String MONGODB_PV = "pv"; // 对应VID。
+    
+    //Mongodb table prefix
+    String MONGODB_PREFIX = "ga-";
+    String MONGODB_PREFIX_WEEK = "ga-week-";
+    String MONGODB_PREFIX_MONTH = "ga-month-";
+    
+    //Mongodb constant
+    String NEW_CUSTOMER = "0";
+    
 
     /**
      * 当天访问的ip重复标识符(依赖于trackId和ip)
@@ -116,6 +132,7 @@ public interface Constants {
     String ET_ACTION = "et_action";    // 与目标的交互行为
     String ET_LABEL = "et_label";      // 事件的额外信息
     String ET_VALUE = "et_value";      // 事件的额外数值信息
+    String ET_TARGET = "et_target";
 
     String PAGE_CONVERSION_NAME = "p_name";//页面转化目标名称
     String PAGE_CONVERSION_RECORD = "p_record";//页面转化记录方式
