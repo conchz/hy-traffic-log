@@ -2,10 +2,10 @@ package com.ss.es;
 
 import com.ss.main.RelogConfig;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
+import java.net.InetSocketAddress;
 import java.util.*;
 
 import static com.ss.main.Constants.DEV_MODE;
@@ -60,19 +60,19 @@ public class EsPools {
                 for (String _host : hostArr[i].split(",")) {
                     String[] arr = _host.split(":");
                     if (arr.length == 1)
-                        addressList.add(new InetSocketTransportAddress(arr[0], 9300));
+                        addressList.add(new InetSocketTransportAddress(new InetSocketAddress(arr[0], 9300)));
                     else if (arr.length == 2)
-                        addressList.add(new InetSocketTransportAddress(arr[0], Integer.valueOf(arr[1])));
+                        addressList.add(new InetSocketTransportAddress(new InetSocketAddress(arr[0], Integer.parseInt(arr[1]))));
                 }
                 String clusterName = clusterArr[i];
 
-                Settings settings = ImmutableSettings.settingsBuilder().put(esMap)
+                Settings settings = Settings.builder().put(esMap)
                         .put("cluster.name", clusterName)
                         .put("client.transport.sniff", true)
                         .put("client.transport.ignore_cluster_name", false)
                         .put("client.transport.ping_timeout", "10s")
                         .put("client.transport.nodes_sampler_interval", "15s").build();
-                TransportClient client = new TransportClient(settings);
+                TransportClient client = TransportClient.builder().settings(settings).build();
                 client.addTransportAddresses(addressList.toArray(new InetSocketTransportAddress[addressList.size()]));
                 clients.add(client);
             }

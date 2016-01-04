@@ -1,6 +1,6 @@
 package com.ss.utils;
 
-import org.elasticsearch.common.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;

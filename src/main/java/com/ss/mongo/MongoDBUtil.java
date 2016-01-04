@@ -1,43 +1,33 @@
 package com.ss.mongo;
 
-import java.net.UnknownHostException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import com.mongodb.*;
+import com.ss.main.Constants;
 
 import org.bson.types.BasicBSONList;
 import org.bson.types.ObjectId;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.Mongo;
-import com.mongodb.MongoException;
-
+import java.net.UnknownHostException;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class MongoDBUtil {
 	private static Mongo connection = null;
 	private static DB db = null;
-	private static Settings settings;
-
+	private static DB exitDb = null;
+	private static ResourceBundle settings;
+	
 	static {
 		try {
-			settings = ImmutableSettings.settingsBuilder()
-					.loadFromClasspath("mongo.yml").build();
-			connection = new Mongo(settings.get("IP") + ":"
-					+ settings.get("PORT"));
-			db = connection.getDB(settings.get("DB_NAME"));
-		} catch (MongoException e) {
-			e.printStackTrace();
-		} catch (UnknownHostException e) {
+			settings = ResourceBundle.getBundle("mongo");
+			if (settings == null) {
+				throw new MongoException(
+						"[mongo.properties] is not found!");
+			}
+			connection = new Mongo(settings.getString("IP") + ":"
+					+ settings.getString("PORT"));
+			db = connection.getDB(settings.getString("DB_NAME"));
+			exitDb = connection.getDB(settings.getString("DB_NAME_OF_EXIT"));
+		} catch (MongoException | UnknownHostException e) {
 			e.printStackTrace();
 		}
 	}
@@ -61,7 +51,12 @@ public class MongoDBUtil {
 	 * @param collectionName
 	 * @return
 	 */
-	public static boolean collectionExists(String collectionName) {
+	public static boolean collectionExists(String dbName, String collectionName) {
+
+		if (Constants.DB_EXIT_NAME.equals(dbName)) {
+			return exitDb.collectionExists(collectionName);
+		}
+
 		return db.collectionExists(collectionName);
 	}
 
@@ -71,10 +66,10 @@ public class MongoDBUtil {
 	 * @param id
 	 * @param collectionName
 	 */
-	public static void findById(String id, String collectionName) {
+	public static void findById(String id, String dbName, String collectionName) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("_id", new ObjectId(id));
-		findOne(map, collectionName);
+		findOne(map, dbName, collectionName);
 	}
 
 	/**
@@ -83,10 +78,13 @@ public class MongoDBUtil {
 	 * 
 	 * @param map
 	 * @param collectionName
+	 * @return 
 	 */
-	public static DBObject findOne(Map<String, Object> map, String collectionName) {
+	public static DBObject findOne(Map<String, Object> map, String dbNmae,
+			String collectionName) {
 		DBObject dbObject = getMapped(map);
-		DBObject object = getCollection(collectionName).findOne(dbObject);
+		DBObject object = getCollection(dbNmae, collectionName).findOne(
+				dbObject);
 		return object;
 	}
 
@@ -97,8 +95,8 @@ public class MongoDBUtil {
 	 * @param collectionName
 	 * @return
 	 */
-	public static long count(DBObject dbs, String collectionName) {
-		return getCollection(collectionName).count(dbs);
+	public static long count(DBObject dbs, String dbName, String collectionName) {
+		return getCollection(dbName, collectionName).count(dbs);
 	}
 
 	/**
@@ -109,8 +107,10 @@ public class MongoDBUtil {
 	 * @param cursorPreparer
 	 * @param collectionName
 	 */
-	public static void find(DBObject dbObject, String collectionName) {
-		DBCursor dbCursor = getCollection(collectionName).find(dbObject);
+	public static void find(DBObject dbObject, String dbName,
+			String collectionName) {
+		DBCursor dbCursor = getCollection(dbName, collectionName)
+				.find(dbObject);
 		Iterator<DBObject> iterator = dbCursor.iterator();
 		while (iterator.hasNext()) {
 			print(iterator.next());
@@ -123,7 +123,13 @@ public class MongoDBUtil {
 	 * @param collectionName
 	 * @return
 	 */
-	public static DBCollection getCollection(String collectionName) {
+	public static DBCollection getCollection(String dbName,
+			String collectionName) {
+
+		if (Constants.DB_EXIT_NAME.equals(dbName)) {
+			return exitDb.getCollection(collectionName);
+		}
+
 		return db.getCollection(collectionName);
 	}
 
@@ -136,25 +142,14 @@ public class MongoDBUtil {
 		return db.getCollectionNames();
 	}
 
-	/**
-	 * 创建集合(表)
-	 * 
-	 * @param collectionName
-	 * @param options
-	 */
-	public static void createCollection(String collectionName, DBObject options) {
-		if (!collectionExists(collectionName)) {
-			db.createCollection(collectionName, options);
-		}
-	}
-
+	
 	/**
 	 * 删除
 	 * 
 	 * @param collectionName
 	 */
-	public static void dropCollection(String collectionName) {
-		DBCollection collection = getCollection(collectionName);
+	public static void dropCollection(String dbName, String collectionName) {
+		DBCollection collection = getCollection(dbName, collectionName);
 		collection.drop();
 	}
 
@@ -343,9 +338,10 @@ public class MongoDBUtil {
 	 * @param collection
 	 * @return
 	 */
-	public static boolean dataExists(Map<String, Object> map, String collection) {
+	public static boolean dataExists(Map<String, Object> map, String dbName,
+			String collection) {
 		DBObject dbObject = getMapped(map);
-		return getCollection(collection).findOne(dbObject) != null;
+		return getCollection(dbName, collection).findOne(dbObject) != null;
 	}
 
 	/**
@@ -356,8 +352,8 @@ public class MongoDBUtil {
 	 * @return
 	 */
 	public static List<DBObject> findByRefs(Map<String, Object> map,
-			String collection) {
-		return findByRefs(map, collection, new String[] {});
+			String dbName, String collection) {
+		return findByRefs(map, dbName, collection, new String[] {});
 	}
 
 	/**
@@ -369,7 +365,7 @@ public class MongoDBUtil {
 	 * @return
 	 */
 	public static List<DBObject> findByRefs(Map<String, Object> map,
-			String collection, String... fields) {
+			String dbName, String collection, String... fields) {
 		DBObject dbObject = getMapped(map);
 		DBObject fieldObject = new BasicDBObject();
 		// 永远不显示_id字段
@@ -377,6 +373,8 @@ public class MongoDBUtil {
 		for (String field : fields) {
 			fieldObject.put(field, true);
 		}
-		return getCollection(collection).find(dbObject, fieldObject).toArray();
+		return getCollection(dbName, collection).find(dbObject, fieldObject)
+				.toArray();
 	}
+
 }

@@ -28,4 +28,4 @@ while getopts "m:p:t:" arg
         esac
     done
 
-${JAVA_HOME}/bin/java -Xms2g -Xmx2g -cp ${BASE_DIR}:${BASE_DIR}/lib/*:${BASE_DIR}/conf com.ss.main.RelogProducerMain ${mode} ${topic} ${port}
+${JAVA_HOME}/bin/java -Dfile.encoding=UTF-8 -Xms2g -Xmx2g -cp ${BASE_DIR}:${BASE_DIR}/lib/*:${BASE_DIR}/conf com.ss.main.RelogProducerMain ${mode} ${topic} ${port}

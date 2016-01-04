@@ -45,6 +45,7 @@ public interface Constants {
 
     // Elasticsearch type suffix
     String ES_TYPE_EVENT_SUFFIX = "_event"; //事件转化
+    String ES_TYPE_PAGE_SUFFIX = "_page";//页面转化
     String ES_TYPE_XY_SUFFIX = "_xy";   // xy坐标
     String ES_TYPE_PROMOTION_URL_SUFFIX = "_promotion_url"; // 推广URL
     String ES_TYPE_PAGE_CONVERSION_SUFFIX = "_pageConversion";
@@ -80,6 +81,8 @@ public interface Constants {
     String MONGODB_PREFIX_WEEK = "ga-week-";
     String MONGODB_PREFIX_MONTH = "ga-month-";
     
+    String MONGODB_EXIT_PREFIX = "exit-indicator-";
+    
     //Mongodb constant
     String NEW_CUSTOMER = "0";
     
@@ -104,6 +107,7 @@ public interface Constants {
     String DESTINATION_URL = "des_url";     // 关键词推广URL
     String NEW_VISIT = "n";         // 是否一次新的访问
     String XY = "xy";               // xy坐标信息
+    String DH = "dh";				// 页面高度
     String AD_TRACK = "atk";        // 广告跟踪流量标识
     String APP_IDENTIFIER = "app";  // (-1:非移动端标识, 0:未知, 1:移动浏览器, 2:App内置浏览器)
     /**
@@ -168,13 +172,23 @@ public interface Constants {
     String AD_CAMPAIGN = "cpna";        // 计划
     String AD_KEYWORD = "kwna";         // 关键词
     String AD_CREATIVE = "crt";         // 创意
-
+    String AD_RF = "adsrf";              // 来源
 
     String VAL_RF_TYPE_DIRECT = "1";    // 直接访问标识
     String VAL_RF_TYPE_SE = "2";        // 搜索引擎访问标识
     String VAL_RF_TYPE_OUTLINK = "3";   // 外部链接访问标识
 
     DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    
+	
+	public static String DB_EXIT_NAME = "exit";
+	public static String DB_CACHA_NAME = "cache";
+	
+	public static int EXIT_COUNT_INCREASE = 1;
+	public static int EXIT_COUNT_DECREASE = -1;
+	public static int EXIT_COUNT_ZERO = 0;
+	
+	
 
     // TEST CONSTANT
     String TEST_TRACK_ID = "1234567890";

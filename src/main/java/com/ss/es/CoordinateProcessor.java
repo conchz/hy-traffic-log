@@ -32,6 +32,7 @@ class CoordinateProcessor implements Constants {
         sourceMap.put(VID, source.get(VID).toString());
         sourceMap.put(CURR_ADDRESS, source.get(CURR_ADDRESS).toString());
         sourceMap.put(XY, xyArr);
+        sourceMap.put(DH, source.get(DH));
         source.clear();
         return sourceMap;
     }

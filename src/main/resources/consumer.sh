@@ -32,4 +32,4 @@ while getopts "m:b:t:n:" arg
         esac
     done
 
-${JAVA_HOME}/bin/java -Xms2g -Xmx2g -cp ${BASE_DIR}:${BASE_DIR}/lib/*:${BASE_DIR}/conf com.ss.main.RelogConsumerMain ${mode} ${topic} ${bulk} ${consumerThreadNumber}
+${JAVA_HOME}/bin/java -Dfile.encoding=UTF-8 -Xms2g -Xmx2g -cp ${BASE_DIR}:${BASE_DIR}/lib/*:${BASE_DIR}/conf com.ss.main.RelogConsumerMain ${mode} ${topic} ${bulk} ${consumerThreadNumber}

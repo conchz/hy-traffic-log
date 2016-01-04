@@ -1,6 +1,7 @@
 package com.ss.mq.consumer;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Maps;
 import com.ss.es.EsForward;
 import com.ss.main.Constants;
 import com.ss.monitor.MonitorService;
@@ -8,7 +9,6 @@ import com.ss.parser.IPParser;
 import com.ss.redis.JRedisPools;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
-import org.elasticsearch.common.collect.Maps;
 import redis.clients.jedis.Jedis;
 
 import java.util.HashMap;
